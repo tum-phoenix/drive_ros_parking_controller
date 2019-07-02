@@ -20,14 +20,14 @@ public:
 
     struct ParkingSpot{
         float length_;         //length of spot
-        float distance_back_;   //distance from car to back of spot
-        float distance_front_;  //distance from car to front of spot
+        float start_;   //distance from car to back of spot
+        float end_;  //distance from car to front of spot
 
         ParkingSpot(){}
         ParkingSpot(float length, float distance_back, float distance_front){
             length_ = length;
-            distance_back_ = distance_back;
-            distance_front_ = distance_front;
+            start_ = distance_back;
+            end_ = distance_front;
         }
     };
 
@@ -38,12 +38,15 @@ public:
 
 private:
     //state values
-    #define FIND 0
-    #define GO_IN 1
-    #define SUCCESS 2
-    #define GO_OUT 3
+    #define FIND        0
+    #define GO_IN       1
+    #define SUCCESS     2
+    #define GO_OUT      3
     
-    #define MIN_DIST_TO_SPOT 20
+    #define MIN_DIST_TO_SPOT    20      // min dist from car to satrt of spot to allow time to slow down/reposition
+    #define MIN_SPOT_LENGTH     400     // min spot length to allow car to comfortably park
+    #define AVG_OBST_LENGTH     30      // avg length of parking obst
+    #define BLOCKED_SPOT_LENGTH 100     // lenght of area off-limits do to MARKING_PARKING_SPOT_BLOCKED
 
     ros::NodeHandle nh_;
 
@@ -60,6 +63,10 @@ private:
     //store enviornment model
     std::vector<drive_ros_msgs::ObstacleEnvironment> obstacles_;
     std::vector<drive_ros_msgs::TrafficMarkEnvironment> traffic_marks_;
+
+    bool isBlockedArea(std::vector<float> blocked_spots, float start, float end);
+    void findPotentialSpots(std::vector<int> right_obst_ids, std::vector<ParkingSpot> potential_spots, std::vector<float> blocked_spots);
+    bool findClosestSpot(std::vector<ParkingSpot> potential_spots, ParkingSpot* choosen_spot);
 };
 
 #endif
